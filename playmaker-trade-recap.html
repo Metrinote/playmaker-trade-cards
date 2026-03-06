@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playmaker Trades - Trade Recap</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Righteous&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #050508;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  .controls {
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: #0a0c10;
+    border: 1px solid #0e2a2f;
+    border-radius: 12px;
+  }
+
+  .controls-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .controls-header .hint {
+    font-size: 11px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: #64748b;
+  }
+
+  .copy-btn {
+    background: linear-gradient(135deg, #0891b2, #06b6d4);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    letter-spacing: 0.02em;
+    transition: opacity 0.15s;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+
+  .copy-btn:hover { opacity: 0.9; }
+  .copy-btn:active { transform: scale(0.98); }
+
+  .share-btn {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    letter-spacing: 0.02em;
+    transition: opacity 0.15s;
+    margin-top: 8px;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+
+  .share-btn:hover { opacity: 0.9; }
+  .share-btn:active { transform: scale(0.98); }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-row .copy-btn,
+  .btn-row .share-btn {
+    margin-top: 0;
+    flex: 1;
+  }
+
+  .reset-btn {
+    background: transparent;
+    color: #64748b;
+    border: 1px solid #0e2a2f;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 8px;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+
+  .reset-btn:hover {
+    color: #94a3b8;
+    border-color: #164e56;
+  }
+
+  /* ============================== */
+  /* THE CARD */
+  /* ============================== */
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: linear-gradient(180deg, #080a0e 0%, #060808 100%);
+    border: 1px solid #0e2a2f;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 
+      0 0 0 1px rgba(255,255,255,0.03),
+      0 20px 60px rgba(0,0,0,0.5),
+      0 0 40px rgba(6, 182, 212, 0.06);
+  }
+
+  .card-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #0e2a2f;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #06b6d4;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+    flex-shrink: 0;
+  }
+
+  .brand-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .brand-name {
+    font-family: 'Righteous', cursive;
+    font-size: 15px;
+    color: #06b6d4;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+  }
+
+  .brand-tagline {
+    font-size: 9.5px;
+    color: #a0a0a0;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    margin-top: 3px;
+    text-transform: uppercase;
+  }
+
+  /* Status badges */
+  .recap-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 6px 10px;
+    border-radius: 20px;
+  }
+
+  .recap-badge.winner {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+
+  .recap-badge.expense {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+
+  .recap-badge.breakeven {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+  }
+
+  .status-toggle {
+    display: flex;
+    gap: 4px;
+  }
+
+  .status-btn {
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #475569;
+    transition: all 0.15s;
+  }
+
+  .status-btn:hover { color: #94a3b8; }
+
+  .status-btn.active.winner-btn {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border-color: rgba(34, 197, 94, 0.2);
+  }
+
+  .status-btn.active.expense-btn {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+
+  .status-btn.active.be-btn {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    border-color: rgba(148, 163, 184, 0.2);
+  }
+
+  /* Result banner */
+  .result-banner {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #0e2a2f;
+  }
+
+  .result-banner.winner {
+    background: linear-gradient(90deg, rgba(34, 197, 94, 0.06) 0%, transparent 100%);
+  }
+
+  .result-banner.expense {
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.06) 0%, transparent 100%);
+  }
+
+  .result-banner.breakeven {
+    background: linear-gradient(90deg, rgba(148, 163, 184, 0.04) 0%, transparent 100%);
+  }
+
+  .ticker-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ticker-name {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+
+  .direction-toggle {
+    display: flex;
+    gap: 6px;
+  }
+
+  .direction-tag {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .direction-tag.long {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+  }
+
+  .direction-tag.short {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+  }
+
+  .toggle-btn {
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid #0e2a2f;
+    background: #0a0c10;
+    color: #475569;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .toggle-btn:hover { color: #94a3b8; border-color: #164e56; }
+
+  .toggle-btn.active.long-btn {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border-color: rgba(34, 197, 94, 0.25);
+  }
+
+  .toggle-btn.active.short-btn {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.25);
+  }
+
+  @media (hover: none) {
+    .status-btn:hover { color: #475569; }
+    .status-btn.active.winner-btn:hover { color: #4ade80; }
+    .status-btn.active.expense-btn:hover { color: #f87171; }
+    .status-btn.active.be-btn:hover { color: #94a3b8; }
+    .toggle-btn:hover { color: #475569; border-color: #0e2a2f; }
+    .toggle-btn.active.long-btn:hover { color: #4ade80; }
+    .toggle-btn.active.short-btn:hover { color: #f87171; }
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    border-bottom: 1px solid #0e2a2f;
+  }
+
+  .stat-box {
+    background: #0a0c10;
+    border: 1px solid #0e2a2f;
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .stat-box .stat-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #64748b;
+    margin-bottom: 6px;
+  }
+
+  .stat-box .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-box.pnl .stat-value.positive { color: #4ade80; }
+  .stat-box.pnl .stat-value.negative { color: #f87171; }
+  .stat-box.pnl .stat-value.neutral { color: #94a3b8; }
+
+  /* Price breakdown */
+  .price-breakdown {
+    padding: 16px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    border-bottom: 1px solid #0e2a2f;
+  }
+
+  .mini-stat {
+    text-align: center;
+  }
+
+  .mini-stat .mini-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #475569;
+    margin-bottom: 4px;
+  }
+
+  .mini-stat .mini-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #94a3b8;
+  }
+
+  .mini-stat.entry .mini-value { color: #06b6d4; }
+  .mini-stat.exit .mini-value { color: #c084fc; }
+
+  /* Reflection */
+  .reflection-section {
+    padding: 16px 24px 20px;
+  }
+
+  .reflection-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+
+  .reflection-text {
+    font-size: 14px;
+    color: #cbd5e1;
+    line-height: 1.5;
+    font-weight: 400;
+    min-height: 20px;
+  }
+
+  /* Footer */
+  .card-footer {
+    padding: 12px 24px;
+    border-top: 1px solid #0e2a2f;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(6, 8, 8, 0.6);
+  }
+
+  .footer-text {
+    font-size: 11px;
+    color: #ffffff;
+    font-weight: 500;
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-link {
+    font-size: 11px;
+  }
+
+  .footer-link a {
+    color: #06b6d4;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .footer-timestamp {
+    font-size: 10px;
+    color: #334155;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Editable styling */
+  [contenteditable] {
+    outline: none;
+    border-radius: 4px;
+    transition: box-shadow 0.15s;
+    cursor: text;
+  }
+
+  [contenteditable]:hover {
+    box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.3);
+  }
+
+  [contenteditable]:focus {
+    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.5);
+  }
+
+  [contenteditable]:empty::before {
+    color: #334155;
+    font-style: italic;
+  }
+
+  .ticker-name[contenteditable]:empty::before { content: 'ES'; }
+  .stat-box .stat-value[contenteditable]:empty::before { content: '\2014'; }
+  .mini-stat .mini-value[contenteditable]:empty::before { content: '0.00'; }
+  .reflection-text[contenteditable]:empty::before { content: 'Add reflection...'; }
+</style>
+</head>
+<body>
+
+<div class="controls" id="controls">
+  <div class="controls-header">
+    <span>Click any field on the card to edit</span>
+    <span class="hint">Fill card, copy or share</span>
+  </div>
+  <div class="btn-row">
+    <button class="copy-btn" id="copyBtn">📋 Copy</button>
+    <button class="share-btn" id="shareBtn">📤 Share</button>
+  </div>
+  <button class="reset-btn" id="resetBtn">Reset All Fields</button>
+</div>
+
+<div class="card" id="tradeCard">
+  
+  <!-- Header -->
+  <div class="card-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <img src="https://cdn.discordapp.com/avatars/382719463474200577/8d687f1b9c309f07a92a66f83006b5b1.webp?size=100" alt="Playmaker Trades" crossorigin="anonymous">
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">Playmaker Trades</div>
+        <div class="brand-tagline">The system requires discipline</div>
+      </div>
+    </div>
+    <div class="status-toggle" id="statusToggle">
+      <button class="status-btn winner-btn active" onclick="setStatus('winner')">Winner</button>
+      <button class="status-btn expense-btn" onclick="setStatus('expense')">Expense</button>
+      <button class="status-btn be-btn" onclick="setStatus('breakeven')">B/E</button>
+    </div>
+  </div>
+
+  <!-- Result banner -->
+  <div class="result-banner winner" id="resultBanner">
+    <div class="ticker-display">
+      <div class="ticker-name" contenteditable="true" id="ticker">ES</div>
+      <div class="direction-toggle" id="dirToggle">
+        <button class="toggle-btn long-btn active" onclick="setDirection('long')">Long</button>
+        <button class="toggle-btn short-btn" onclick="setDirection('short')">Short</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- P&L -->
+  <div class="stats-grid">
+    <div class="stat-box pnl">
+      <div class="stat-label">P&L</div>
+      <div class="stat-value positive" contenteditable="true" id="pnl">+$725</div>
+    </div>
+  </div>
+
+  <!-- Price breakdown -->
+  <div class="price-breakdown">
+    <div class="mini-stat entry">
+      <div class="mini-label">Entry</div>
+      <div class="mini-value" contenteditable="true" id="entry">5985.50</div>
+    </div>
+    <div class="mini-stat exit">
+      <div class="mini-label">Exit</div>
+      <div class="mini-value" contenteditable="true" id="exit">6000.00</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-label">Stop Was</div>
+      <div class="mini-value" contenteditable="true" id="stop">5978.00</div>
+    </div>
+  </div>
+
+  <!-- Reflection -->
+  <div class="reflection-section" id="reflectionSection">
+    <div class="reflection-label">Reflection</div>
+    <div class="reflection-text" contenteditable="true" id="reflection">Took the gap fill trade right at the open. Held through the pullback. Exited at target, didn't get greedy. Clean execution.</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    <div class="footer-text">Trading journal that tracks psychology, not just P&L</div>
+    <div class="footer-bottom">
+      <div class="footer-link"><a href="https://metrinote.com">metrinote.com</a></div>
+      <div class="footer-timestamp" id="timestamp"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let currentStatus = 'winner';
+  let currentDirection = 'long';
+
+  function updateTimestamp() {
+    const now = new Date();
+    const options = { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+    document.getElementById('timestamp').textContent = now.toLocaleDateString('en-US', options);
+  }
+  updateTimestamp();
+
+  function setStatus(status) {
+    currentStatus = status;
+    const banner = document.getElementById('resultBanner');
+    const badge = document.getElementById('statusToggle');
+    banner.className = 'result-banner ' + status;
+    badge.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('active'));
+    badge.querySelector('.' + status + '-btn').classList.add('active');
+    updatePnlColor();
+  }
+
+  function updatePnlColor() {
+    const pnlEl = document.getElementById('pnl');
+    const text = pnlEl.textContent;
+    pnlEl.classList.remove('positive', 'negative', 'neutral');
+    if (currentStatus === 'winner' || text.includes('+')) {
+      pnlEl.classList.add('positive');
+    } else if (currentStatus === 'expense' || text.includes('-')) {
+      pnlEl.classList.add('negative');
+    } else {
+      pnlEl.classList.add('neutral');
+    }
+  }
+
+  function setDirection(dir) {
+    currentDirection = dir;
+    document.querySelectorAll('#dirToggle .toggle-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('#dirToggle .' + dir + '-btn').classList.add('active');
+  }
+
+  function prepareForCapture() {
+    document.querySelectorAll('[contenteditable]').forEach(el => el.blur());
+    document.querySelectorAll('.toggle-btn, .status-btn').forEach(btn => {
+      btn.style.display = 'none';
+    });
+
+    const reflectionText = document.getElementById('reflection');
+    if (!reflectionText.textContent.trim()) {
+      document.getElementById('reflectionSection').style.display = 'none';
+    }
+
+    const statusBadge = document.createElement('span');
+    statusBadge.className = 'recap-badge ' + currentStatus;
+    statusBadge.textContent = currentStatus === 'breakeven' ? 'BREAKEVEN' : currentStatus.toUpperCase();
+    statusBadge.id = 'staticStatusBadge';
+    document.getElementById('statusToggle').appendChild(statusBadge);
+
+    const dirTag = document.createElement('span');
+    dirTag.className = 'direction-tag ' + currentDirection;
+    dirTag.textContent = currentDirection.toUpperCase();
+    dirTag.id = 'staticDirTag';
+    document.getElementById('dirToggle').appendChild(dirTag);
+  }
+
+  function restoreAfterCapture() {
+    document.querySelectorAll('.toggle-btn, .status-btn').forEach(btn => {
+      btn.style.display = '';
+    });
+    ['staticStatusBadge', 'staticDirTag'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    });
+    document.getElementById('reflectionSection').style.display = '';
+  }
+
+  async function copyCardToClipboard() {
+    var card = document.getElementById('tradeCard');
+    var btn = document.querySelector('.copy-btn');
+    btn.textContent = '⏳ Copying...';
+    prepareForCapture();
+    try {
+      var canvas = await html2canvas(card, {
+        backgroundColor: '#060808',
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+      canvas.toBlob(async function(blob) {
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          btn.textContent = '✅ Copied!';
+          setTimeout(function() { btn.textContent = '📋 Copy'; }, 2500);
+        } catch (e) {
+          var link = document.createElement('a');
+          link.download = 'playmaker-recap.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          btn.textContent = '✅ Downloaded!';
+          setTimeout(function() { btn.textContent = '📋 Copy'; }, 2500);
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error('Copy failed:', err);
+      btn.textContent = '❌ Failed';
+      setTimeout(function() { btn.textContent = '📋 Copy'; }, 2000);
+    }
+    restoreAfterCapture();
+  }
+
+  async function shareCard() {
+    var card = document.getElementById('tradeCard');
+    var btn = document.querySelector('.share-btn');
+    btn.textContent = '⏳ Preparing...';
+    prepareForCapture();
+    try {
+      var canvas = await html2canvas(card, {
+        backgroundColor: '#060808',
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+      canvas.toBlob(async function(blob) {
+        var ticker = document.getElementById('ticker').textContent || 'trade';
+        var now = new Date();
+        var dateStr = (now.getMonth()+1) + '-' + now.getDate();
+        var file = new File([blob], 'playmaker-recap-' + ticker + '-' + dateStr + '.png', { type: 'image/png' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file] });
+            btn.textContent = '✅ Shared!';
+            setTimeout(function() { btn.textContent = '📤 Share'; }, 2000);
+          } catch (e) {
+            if (e.name !== 'AbortError') {
+              var link = document.createElement('a');
+              link.download = file.name;
+              link.href = canvas.toDataURL('image/png');
+              link.click();
+              btn.textContent = '✅ Downloaded!';
+              setTimeout(function() { btn.textContent = '📤 Share'; }, 2000);
+            } else {
+              btn.textContent = '📤 Share';
+            }
+          }
+        } else {
+          var link = document.createElement('a');
+          link.download = 'playmaker-recap-' + ticker + '-' + dateStr + '.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          btn.textContent = '✅ Downloaded!';
+          setTimeout(function() { btn.textContent = '📤 Share'; }, 2000);
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error('Share failed:', err);
+      btn.textContent = '❌ Failed';
+      setTimeout(function() { btn.textContent = '📤 Share'; }, 2000);
+    }
+    restoreAfterCapture();
+  }
+
+  function resetCard() {
+    document.getElementById('ticker').textContent = '';
+    document.getElementById('pnl').textContent = '';
+    document.getElementById('entry').textContent = '';
+    document.getElementById('exit').textContent = '';
+    document.getElementById('stop').textContent = '';
+    document.getElementById('reflection').textContent = '';
+    setStatus('winner');
+    setDirection('long');
+    updateTimestamp();
+  }
+
+  document.querySelectorAll('.ticker-name, .stat-value, .mini-value').forEach(el => {
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+    });
+  });
+
+  document.getElementById('pnl').addEventListener('input', updatePnlColor);
+
+  document.getElementById('copyBtn').addEventListener('click', async function() {
+    try { await copyCardToClipboard(); } catch(e) { this.textContent = '❌ Error: ' + e.message; }
+  });
+  document.getElementById('shareBtn').addEventListener('click', async function() {
+    try { await shareCard(); } catch(e) { this.textContent = '❌ Error: ' + e.message; }
+  });
+  document.getElementById('resetBtn').addEventListener('click', function() {
+    try { resetCard(); } catch(e) { this.textContent = '❌ Error: ' + e.message; }
+  });
+</script>
+
+</body>
+</html>
